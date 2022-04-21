@@ -1,13 +1,23 @@
 import express from "express";
+import fs from "fs";
+import https from "https";
 
-import filmController from './api/controllers/filmController.js'
+import filmController from "./api/controllers/filmController.js";
 
-const port = 4000
+const port = 4000;
 
-const app = express()
+const app = express();
 
-app.use("/api/film", filmController)
+app.use("/api/film", filmController);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`)
-})
+https
+  .createServer(
+    {
+      key: fs.readFileSync("localhost.decrypted.key"),
+      cert: fs.readFileSync("localhost.crt"),
+    },
+    app
+  )
+  .listen(port, function () {
+    console.log(`Server listening on port ${port}`);
+  });
