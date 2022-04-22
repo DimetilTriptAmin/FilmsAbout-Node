@@ -1,13 +1,18 @@
 import express from "express";
-import fs from "fs";
 import https from "https";
+import fs from "fs";
+import cors from "cors";
 
+import { errorHandler } from "./api/helpers/errorHandler.js";
 import filmController from "./api/controllers/filmController.js";
 
 const port = 4000;
 
 const app = express();
 
+app.use(cors());
+
+app.use(errorHandler);
 app.use("/api/film", filmController);
 
 https

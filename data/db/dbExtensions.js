@@ -1,4 +1,5 @@
 import oracledb from "oracledb";
+import ResultSet from "oracledb/lib/resultset.js";
 import { getConnection, options } from "./dbConnection.js";
 
 export const executeStoredProcedure = async (procedureName, params) => {
@@ -17,9 +18,20 @@ export const executeStoredProcedure = async (procedureName, params) => {
 
   const binds = Object.assign({}, params);
 
-  const result = await connection.execute(sql, binds, options);
+  const procedureResult = await connection.execute(sql, binds, options);
 
-  return result.outBinds;
+  const result = {};
+
+  for (const [key, outBind] of Object.entries(procedureResult.outBinds)) {
+    if (outBind instanceof ResultSet) {
+      result[key] = await outBind.getRows();
+      await outBind.close();
+    } else result[key] = outBind;
+  }
+
+  connection.close();
+
+  return result;
 };
 
 export const executeStoredProcedureWithLobs = async (procedureName, params) => {
@@ -35,7 +47,7 @@ export const executeStoredProcedureWithLobs = async (procedureName, params) => {
     param.val.destroy();
   });
 
-  return executeStoredProcedure(procedureName, params)
+  return executeStoredProcedure(procedureName, params);
 };
 
 const createCLOB = async (connection, readableStream) => {
