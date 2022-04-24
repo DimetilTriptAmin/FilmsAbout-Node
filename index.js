@@ -2,18 +2,38 @@ import express from "express";
 import https from "https";
 import fs from "fs";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 
 import { errorHandler } from "./api/helpers/errorHandler.js";
+import caslConfig from "./api/helpers/caslConfig.js";
+import corsConfig from "./api/helpers/corsConfig.js";
+
 import filmController from "./api/controllers/filmController.js";
+import userController from "./api/controllers/userController.js";
+
+import userService from "./bussiness/services/userService.js";
+
+const test = async () => {
+  const user = await userService.login('user', '')
+  console.log(user)
+}
+
+//test()
 
 const port = 4000;
 
 const app = express();
 
-app.use(cors());
+app.use(cors(corsConfig));
+app.use(cookieParser())
+app.use(bodyParser.json());
+app.use(caslConfig)
+
+app.use("/api/film", filmController);
+app.use("/api/user", userController);
 
 app.use(errorHandler);
-app.use("/api/film", filmController);
 
 https
   .createServer(

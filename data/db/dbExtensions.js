@@ -33,27 +33,3 @@ export const executeStoredProcedure = async (procedureName, params) => {
 
   return result;
 };
-
-export const executeStoredProcedureWithLobs = async (procedureName, params) => {
-  const lobParams = Object.values(params).filter(
-    (param) => param.type === oracledb.CLOB
-  );
-
-  lobParams.forEach(async (param) => {
-    param.val = await createCLOB(connection, param.val);
-  });
-
-  lobParams.forEach((param) => {
-    param.val.destroy();
-  });
-
-  return executeStoredProcedure(procedureName, params);
-};
-
-const createCLOB = async (connection, readableStream) => {
-  const CLOB = await connection.createLob(oracledb.CLOB);
-
-  readableStream.pipe(CLOB);
-
-  return CLOB;
-};
