@@ -11,6 +11,8 @@ import corsConfig from "./api/helpers/corsConfig.js";
 
 import filmController from "./api/controllers/filmController.js";
 import userController from "./api/controllers/userController.js";
+import commentController from "./api/controllers/commentController.js";
+import ratingController from "./api/controllers/ratingController.js"
 
 import userService from "./bussiness/services/userService.js";
 
@@ -32,6 +34,9 @@ app.use(caslConfig)
 
 app.use("/api/film", filmController);
 app.use("/api/user", userController);
+app.use("/api/comment", commentController);
+app.use("/api/rating", ratingController);
+
 
 app.use(errorHandler);
 
