@@ -4,7 +4,7 @@ const map = (user) => ({
     name: user.NAME,
     email: user.EMAIL,
     passwordHash: user.PASSWORD_HASH,
-    userRole: user.USER_ROLE,
+    role: user.USER_ROLE,
   })
   
   export default map

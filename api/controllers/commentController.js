@@ -1,6 +1,10 @@
 import { Router } from "express";
+import * as core from "@casl/ability";
 
+import { eventSocket } from "../../index.js";
 import commentService from "../../bussiness/services/commentService.js";
+import wsEvents from "../helpers/wsEvents.js";
+import { CaslActions, CaslModels } from "../helpers/enums.js";
 
 const router = Router();
 
@@ -32,8 +36,10 @@ router.get("/:filmId/:pageSize/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  if (!req.user) {
-    return res.sendStatus(401);
+  const ability = req.ability
+
+  if (!ability.can(CaslActions.create, CaslModels.comment)) {
+    return res.sendStatus(401)
   }
 
   try {
@@ -45,6 +51,8 @@ router.post("/", async (req, res) => {
       req.body.text
     );
 
+    eventSocket.emit(wsEvents.commentAdded, comment);
+
     res.status(200).json(comment);
   } catch (err) {
     next(err);
@@ -52,13 +60,19 @@ router.post("/", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  if (!req.user) {
-    return res.sendStatus(401);
-  }
-  try {
-    const commentId = parseInt(req.params.id);
+  const ability = req.ability
+  const commentId = parseInt(req.params.id);
 
+  const comment = await commentService.get(commentId)
+
+  if (!ability.can(CaslActions.delete, core.subject(CaslModels.comment, comment))) {
+    return res.sendStatus(401)
+  }
+
+  try {
     await commentService.destroy(commentId);
+
+    eventSocket.emit(wsEvents.commentDeleted, { commentId });
 
     res.status(200).json(commentId);
   } catch (err) {
@@ -67,13 +81,19 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.put("/", async (req, res) => {
-  if (!req.user) {
-    return res.sendStatus(401);
-  }
-  try {
-    const commentId = parseInt(req.body.commentId);
+  const ability = req.ability
+  const commentId = parseInt(req.body.commentId);
 
+  const comment = await commentService.get(commentId)
+
+  if (!ability.can(CaslActions.update, core.subject(CaslModels.comment, comment))) {
+    return res.sendStatus(401)
+  }
+
+  try {
     await commentService.update(commentId, req.body.text);
+
+    eventSocket.emit(wsEvents.commentEdited, { commentId, text: req.body.text });
 
     res.status(200).json(commentId);
   } catch (err) {

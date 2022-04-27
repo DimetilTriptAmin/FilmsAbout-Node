@@ -3,7 +3,7 @@ const jwt = {
   tokens: {
     access: {
       type: "access",
-      expiresIn: "60m",
+      expiresIn: "30m",
       SameSite: "None",
       Secure: true
     },

@@ -34,7 +34,8 @@ const create = async (userId, filmId, text) => {
     avatar: user.avatar,
     text,
     publishDate,
-    rating: rating.rate
+    rating: rating.rate,
+    filmId
   }
 
   return responseModel;

@@ -2,9 +2,10 @@ import jwt from "jsonwebtoken";
 
 import jwtConfig from "../helpers/tokenConfig.js";
 import userService from "./userService.js";
+import jwtBlackListService from "./jwtBlackListService.js";
 
 const generateAccessToken = (user) => {
-  const payload = { userId: user.id, userRole: user.userRole };
+  const payload = { userId: user.id, userRole: user.role };
   const options = { expiresIn: jwtConfig.tokens.access.expiresIn };
 
   return jwt.sign(payload, jwtConfig.secret, options);
@@ -27,7 +28,7 @@ const validateAccessToken = async (req) => {
 };
 
 const generateRefreshToken = (user) => {
-  const payload = { userId: user.id, userRole: user.userRole };
+  const payload = { userId: user.id, userRole: user.role };
   const options = { expiresIn: jwtConfig.tokens.refresh.expiresIn };
 
   return jwt.sign(payload, jwtConfig.secret, options);
@@ -58,25 +59,22 @@ const refreshAccessToken = async (req) => {
   return await jwt
     .verify(refreshToken, jwtConfig.secret, async (err, decoded) => {
       if (err) {
-        console.log(err, "1")
         return {};
       }
 
       const user = await userService.get(decoded["userId"]);
 
       if (!user) {
-        console.log(err, "!User")
+        return {};
+      }
+      
+      const resultCHeck = await jwtBlackListService.CheckBlackList(user.id, refreshToken);
 
+      if (!resultCHeck) {
         return {};
       }
 
-      // let resultCHeck = await blackList.CheckBlackList(user.id, refreshToken);
-
-      // if (!resultCHeck) {
-      //   return {};
-      // }
-
-      // blackList.AddBlackList(user.id, refreshToken);
+      jwtBlackListService.AddBlackList(user.id, refreshToken);
 
       return {
         accessToken: generateAccessToken(user),
