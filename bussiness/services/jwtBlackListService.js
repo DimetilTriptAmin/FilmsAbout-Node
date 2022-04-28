@@ -5,12 +5,12 @@ client.connect();
 
 const jwtBlackListService = {
   AddBlackList: async (userId, jwt) => {
-    const refreshTokens = await client.get(userId)
-    
+    const refreshTokens = await client.get(userId);
+
     if (refreshTokens == null) {
-        await client.set(userId, jwt);
+      await client.set(userId, jwt);
     } else {
-        await client.set(userId, refreshTokens + "|" + jwt);
+      await client.set(userId, refreshTokens + "|" + jwt);
     }
   },
   CheckBlackList: async (userId, jwt) => {

@@ -1,4 +1,5 @@
 import filmRepository from "../../data/repositories/filmRepository.js"
+import ServiceError from "../helpers/serviceError.js"
 import filmMap from "../mappers/filmDbToServiceMap.js"
 
 const getAll = async () => {
@@ -9,6 +10,11 @@ const getAll = async () => {
 
 const get = async (id) => {
     const dbFilms = await filmRepository.get(id)
+
+    if (dbFilms.length === 0) {
+        throw new ServiceError('Film not found', 404)
+    }
+
     const mappedFilms = dbFilms.map(film => filmMap(film))
     
     return mappedFilms.shift()
@@ -16,6 +22,10 @@ const get = async (id) => {
 
 const getIdByTitle = async (title) => {
     const id = await filmRepository.getIdByTitle(title)
+
+    if (id === -1) {
+        throw new ServiceError('Film not found', 404)
+    }
 
     return id
 }

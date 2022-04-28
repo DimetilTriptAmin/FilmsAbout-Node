@@ -17,7 +17,11 @@ const caslConfig = async (req, res, next) => {
       can(CaslActions.read, [CaslModels.user]);
       can(CaslActions.update, CaslModels.user, { id: userClaims.userId });
     default:
-      can(CaslActions.read, [CaslModels.film, CaslModels.comment, CaslModels.rating]);
+      can(CaslActions.read, [
+        CaslModels.film,
+        CaslModels.comment,
+        CaslModels.rating,
+      ]);
   }
 
   req.ability = new core.Ability(rules);

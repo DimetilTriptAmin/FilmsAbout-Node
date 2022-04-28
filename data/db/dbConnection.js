@@ -20,7 +20,7 @@ export const options = {
 };
 
 await oracledb.createPool(dbConfig);
-oracledb.fetchAsString = [ oracledb.CLOB ];
+oracledb.fetchAsString = [oracledb.CLOB];
 
 export const getConnection = async () => {
   const connection = await oracledb.getConnection("FA_POOL");
@@ -29,7 +29,7 @@ export const getConnection = async () => {
 
 const dbConnection = {
   getConnection,
-  options
-}
+  options,
+};
 
-export default dbConnection
+export default dbConnection;

@@ -7,7 +7,7 @@ const getAll = async () => {
     cursorparam: { dir: oracledb.BIND_OUT, type: oracledb.CURSOR },
   };
 
-  const outBinds = await executeStoredProcedure("sp_film_get_all", data)
+  const outBinds = await executeStoredProcedure("sp_film_get_all", data);
 
   const films = outBinds.cursorparam;
 
@@ -20,7 +20,7 @@ const get = async (id) => {
     id_in: { dir: oracledb.BIND_IN, type: oracledb.NUMBER, val: id },
   };
 
-  const outBinds = await executeStoredProcedure("sp_film_get_by_id", data)
+  const outBinds = await executeStoredProcedure("sp_film_get_by_id", data);
 
   const films = outBinds.cursorparam;
 
@@ -33,7 +33,10 @@ const getIdByTitle = async (title) => {
     id_out: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
   };
 
-  const outBinds = await executeStoredProcedure("sp_film_get_id_by_title", data)
+  const outBinds = await executeStoredProcedure(
+    "sp_film_get_id_by_title",
+    data
+  );
 
   const resultId = outBinds.id_out;
 

@@ -5,7 +5,7 @@ const map = (film) => ({
   producer: film.PRODUCER,
   rating: film.RATING,
   title: film.TITLE,
-  trailerLink: film.TRAILER_LINK
-})
+  trailerLink: film.TRAILER_LINK,
+});
 
-export default map
+export default map;

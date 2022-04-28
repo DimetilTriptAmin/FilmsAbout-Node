@@ -23,7 +23,7 @@ const wsPort = 5000;
 const app = express();
 
 app.use(cors(corsConfig));
-app.use(tokenDecoder)
+app.use(tokenDecoder);
 app.use(caslConfig);
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -47,7 +47,7 @@ https
     console.log(`Server listening on port ${port}`);
   });
 
-export const eventSocket = new Server({ port: wsPort, host: 'localhost'});
+export const eventSocket = new Server({ port: wsPort, host: "localhost" });
 
 eventSocket.event(wsEvents.commentAdded);
 eventSocket.event(wsEvents.commentEdited);

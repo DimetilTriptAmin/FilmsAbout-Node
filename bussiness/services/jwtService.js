@@ -67,8 +67,11 @@ const refreshAccessToken = async (req) => {
       if (!user) {
         return {};
       }
-      
-      const resultCHeck = await jwtBlackListService.CheckBlackList(user.id, refreshToken);
+
+      const resultCHeck = await jwtBlackListService.CheckBlackList(
+        user.id,
+        refreshToken
+      );
 
       if (!resultCHeck) {
         return {};

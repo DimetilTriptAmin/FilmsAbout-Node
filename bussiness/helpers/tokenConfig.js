@@ -5,21 +5,21 @@ const jwt = {
       type: "access",
       expiresIn: "30m",
       SameSite: "None",
-      Secure: true
+      Secure: true,
     },
     refresh: {
       type: "refresh",
       expiresIn: "1440m",
       SameSite: "None",
-      Secure: true
+      Secure: true,
     },
   },
   refreshOptions: {
     maxAge: 1000 * 60 * 1440,
     httpOnly: true,
     sameSite: "None",
-    secure: true
-},
+    secure: true,
+  },
 };
 
-export default jwt
+export default jwt;

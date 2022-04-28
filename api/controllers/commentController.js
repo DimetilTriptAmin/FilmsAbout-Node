@@ -5,10 +5,24 @@ import { eventSocket } from "../../index.js";
 import commentService from "../../bussiness/services/commentService.js";
 import wsEvents from "../helpers/wsEvents.js";
 import { CaslActions, CaslModels } from "../helpers/enums.js";
+import {
+  deleteSchema,
+  getPageAmountByIdSchema,
+  getPageByIdSchema,
+  postSchema,
+  putSchema,
+} from "../validators/commentValidators.js";
 
 const router = Router();
 
-router.get("/:filmId/:pageNumber/:pageSize", async (req, res) => {
+router.get("/:filmId/:pageNumber/:pageSize", async (req, res, next) => {
+  try {
+    await getPageByIdSchema.validateAsync(req.params);
+  } catch (err) {
+    err.status = 400;
+    return next(err);
+  }
+
   try {
     const filmId = parseInt(req.params.filmId);
     const pageNumber = parseInt(req.params.pageNumber);
@@ -22,7 +36,14 @@ router.get("/:filmId/:pageNumber/:pageSize", async (req, res) => {
   }
 });
 
-router.get("/:filmId/:pageSize/", async (req, res) => {
+router.get("/:filmId/:pageSize/", async (req, res, next) => {
+  try {
+    await getPageAmountByIdSchema.validateAsync(req.params);
+  } catch (err) {
+    err.status = 400;
+    return next(err);
+  }
+
   try {
     const filmId = parseInt(req.params.filmId);
     const pageSize = parseInt(req.params.pageSize);
@@ -35,11 +56,18 @@ router.get("/:filmId/:pageSize/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const ability = req.ability
+router.post("/", async (req, res, next) => {
+  try {
+    await postSchema.validateAsync(req.body);
+  } catch (err) {
+    err.status = 400;
+    return next(err);
+  }
+
+  const ability = req.ability;
 
   if (!ability.can(CaslActions.create, CaslModels.comment)) {
-    return res.sendStatus(401)
+    return res.sendStatus(401);
   }
 
   try {
@@ -59,17 +87,26 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
-  const ability = req.ability
-  const commentId = parseInt(req.params.id);
-
-  const comment = await commentService.get(commentId)
-
-  if (!ability.can(CaslActions.delete, core.subject(CaslModels.comment, comment))) {
-    return res.sendStatus(401)
+router.delete("/:id", async (req, res, next) => {
+  try {
+    await deleteSchema.validateAsync(req.params.id);
+  } catch (err) {
+    err.status = 400;
+    return next(err);
   }
 
+  const ability = req.ability;
+  const commentId = parseInt(req.params.id);
+
   try {
+    const comment = await commentService.get(commentId);
+
+    if (
+      !ability.can(CaslActions.delete, core.subject(CaslModels.comment, comment))
+    ) {
+      return res.sendStatus(401);
+    }
+
     await commentService.destroy(commentId);
 
     eventSocket.emit(wsEvents.commentDeleted, { commentId });
@@ -80,20 +117,32 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.put("/", async (req, res) => {
-  const ability = req.ability
-  const commentId = parseInt(req.body.commentId);
-
-  const comment = await commentService.get(commentId)
-
-  if (!ability.can(CaslActions.update, core.subject(CaslModels.comment, comment))) {
-    return res.sendStatus(401)
+router.put("/", async (req, res, next) => {
+  try {
+    await putSchema.validateAsync(req.body);
+  } catch (err) {
+    err.status = 400;
+    return next(err);
   }
 
+  const ability = req.ability;
+  const commentId = parseInt(req.body.commentId);
+
   try {
+    const comment = await commentService.get(commentId);
+
+    if (
+      !ability.can(CaslActions.update, core.subject(CaslModels.comment, comment))
+    ) {
+      return res.sendStatus(401);
+    }
+
     await commentService.update(commentId, req.body.text);
 
-    eventSocket.emit(wsEvents.commentEdited, { commentId, text: req.body.text });
+    eventSocket.emit(wsEvents.commentEdited, {
+      commentId,
+      text: req.body.text,
+    });
 
     res.status(200).json(commentId);
   } catch (err) {
